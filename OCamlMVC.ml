@@ -335,4 +335,3 @@ let attach ~parent_id (module C : Component) =
   Js.Opt.iter parent_opt begin fun parent ->
     ignore (run C.render C.update parent C.initial)
   end
-
