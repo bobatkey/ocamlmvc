@@ -4,6 +4,8 @@ A cheap and cheerful MVC library for writing interactive web pages
 with [Ocaml](http://ocaml.org) that are compiled into Javascript with
 [js_of_ocaml](http://ocsigen.org/js_of_ocaml/).
 
+[Live demo](http://bentnib.org/ocamlmvc-demo/todo.html).
+
 **Warning:** everything will change.
 
 ## Basic design notes
@@ -43,8 +45,11 @@ reasonably efficient.
 ## Demo
 
 There is one demo at the moment: a very simple todo list application,
-with undo/redo capability added by a generic “VCR” functor. This
-application is constructed in layers:
+with undo/redo capability added by a generic “VCR” functor. A compiled
+version of the demo can be seen
+[on my website](http://bentnib.org/ocamlmvc-demo/todo.html).
+
+This application is constructed in layers:
 
 1. There is a pure OCaml core (i.e., with no Javascript-specific
    stuff), implemented in the module `TodoList`.
