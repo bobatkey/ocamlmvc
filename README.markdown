@@ -13,6 +13,7 @@ with [Ocaml](http://ocaml.org) that are compiled into Javascript with
 The library (such as it is) is based around a single `Component`
 module signature:
 
+````ocaml
     module type Component = sig
         type state
         type action
@@ -21,6 +22,7 @@ module signature:
         val update  : action -> state -> state
         val initial : state
     end
+````
 
 The type `state` represents the set of all possible states that the
 component can be in, and the type `action` represents all the possible
