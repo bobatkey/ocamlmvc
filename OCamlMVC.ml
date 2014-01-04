@@ -212,7 +212,7 @@ module Html = struct
                    Some (oninput (Js.to_string s))))
         ; Event (Dom_html.Event.keypress,
                  (fun obj ev ->
-                   if ev##keyCode = 0x0d then Some onenter else None))
+                   if ev##keyCode = Keycode.return then Some onenter else None))
         ],
         [ ])
 
