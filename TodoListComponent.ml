@@ -12,6 +12,13 @@ type action =
   | Clear
   | UpdatePending of string
 
+let string_of_action = function
+  | Add -> "Add"
+  | Set (i, TodoList.TODO) -> sprintf "Set (%d, TODO)" i
+  | Set (i, TodoList.DONE) -> sprintf "Set (%d, DONE)" i
+  | Clear -> "Clear"
+  | UpdatePending s -> sprintf "UpdatePending %S" s
+
 (**********************************************************************)
 let render_item idx {TodoList.label=l;status} =
   let id = sprintf "checkbox%d" idx in
