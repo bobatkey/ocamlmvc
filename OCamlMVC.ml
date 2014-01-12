@@ -147,10 +147,23 @@ and update_trees : 'a. ('a -> bool Js.t) -> Dom_html.element Js.t -> tree list -
 module Html = struct
   let map f tree = Map (f, tree)
 
-  let div ?(classes=[]) children =
+  let div ?(classes=[]) ?onkeypress ?tabindex children =
     El ("div",
-        StringMap.singleton "class" (String.concat " " classes),
-        [],
+        StringMap.(empty
+                      |> add "class" (String.concat " " classes)
+                      |> (match tabindex with
+                          | None -> identity
+                          | Some i -> add "tabindex" (string_of_int i))),
+        List.concat
+          [ (match onkeypress with
+            | None -> []
+            | Some f ->
+              [ Event (Dom_html.Event.keypress,
+                       (fun node ev -> 
+                         let key_code  = ev##keyCode in
+                         let char_code = Js.Optdef.get (ev##charCode) (fun () -> 0) in
+                         f key_code char_code)) ])
+          ],
         children)
 
   let text text =
@@ -245,7 +258,7 @@ module Html = struct
                          @ (if enabled then [] else ["disabled"])
                          @ classes)
     in
-    El ("a",
+    El ("button",
         StringMap.(empty |> add "class" class_),
         [ Event (Dom_html.Event.click,
                  (fun _ _ -> Some onclick)) ],
@@ -292,8 +305,8 @@ module Html = struct
   let code children =
     El ("code", StringMap.empty, [], children)
 
-  let pre children =
-    El ("pre", StringMap.empty, [], children)
+  let pre ?(classes=[]) children =
+    El ("pre", StringMap.singleton "class" (String.concat " " classes), [], children)
 
   let p children =
     El ("p", StringMap.empty, [], children)

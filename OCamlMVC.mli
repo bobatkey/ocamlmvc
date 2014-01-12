@@ -1,4 +1,4 @@
-(** OCamlMVC: an MVC library for writing reactive webpages *)
+(** An MVC library for writing reactive webpages *)
 
 type 'action html
 
@@ -16,7 +16,7 @@ val attach : parent_id:string -> (module Component) -> unit
 module Html : sig
   val map : ('a -> 'b) -> 'a html -> 'b html
 
-  val div : ?classes:string list -> 'a html list -> 'a html
+  val div : ?classes:string list -> ?onkeypress:(int -> int -> 'a option) -> ?tabindex:int -> 'a html list -> 'a html
 
   val text : string -> 'a html
 
@@ -69,7 +69,7 @@ module Html : sig
 
   val code : 'a html list -> 'a html
 
-  val pre : 'a html list -> 'a html
+  val pre : ?classes:string list -> 'a html list -> 'a html
 
   val p : 'a html list -> 'a html
 
