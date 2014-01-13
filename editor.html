@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en_GB">
+  <head>
+    <meta charset="UTF-8">
+    <title>OCamlMVC Editor demo</title>
+    <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/normalize.css" />
+    <link rel="stylesheet" href="css/foundation.min.css" />
+    <script src="js/modernizr.js"></script>
+<style>
+div.editor {
+  padding:       6px;
+  border:        1px solid #999;
+  overflow:      auto;
+  cursor:        text;
+  border-radius: 6px
+}
+
+pre.line {
+  margin:      0px 0px 0px 0px;
+  font-family: Inconsolata;
+  white-space: pre
+}
+
+pre.current-line {
+  background-color: #eee
+}
+
+span.cursor {
+  border: 1px solid #99a;
+  margin: -1px -1px -1px -1px
+}
+
+div.editor:focus span.cursor {
+  border: none;
+  margin: 0 0 0 0;
+  animation-duration: 0.5s;
+  animation-name:     blink;
+  animation-iteration-count: infinite;
+  animation-direction: alternate
+}
+
+@keyframes blink {
+  from { color: #fff; background-color: #555 }
+  60%  { color: #fff; background-color: #555 }
+  61%  { color: #000; background-color: none }
+  to   { color: #000; background-color: none }
+}
+
+span.small {
+  font-size: 70%
+}
+</style>
+  </head>
+  <body>
+    <div class="row">
+      <div class="large-12 columns">
+        <h1>OCamlMVC Text Editor</h1>
+      </div>
+
+      <hr>
+    </div>
+
+    <div class="row">
+      <div class="large-7 columns">
+        <div id="editor"></div>
+      </div>
+      <div class="large-5 columns">
+        <h4>About</h4>
+
+        <p>
+          This is a demo of a simple text editor, written
+          in <a href="http://ocaml.org/">OCaml</a> and compiled to
+          JavaScript
+          using <a href="http://ocsigen.org/js_of_ocaml/"><tt>js_of_ocaml</tt></a>. The <a href="https://github.com/bobatkey/ocamlmvc/">OCamlMVC</a>
+          library is used to provide a quick, and easy way to build
+          interactive web pages.
+        </p>
+
+        <p>
+          The point of this demo is to show off
+          the <a href="https://github.com/bobatkey/ocamlmvc/blob/master/VCR.ml">generic
+          undo/redo component of OCamlMVC</a>, which supplies the
+          ‘Undo’ and ‘Redo’ buttons above the text editor, and the
+          history and future stacks below the editor pane. Given any
+          OCamlMVC component, undo and redo can be added simply by
+          applying an OCaml functor. Here is the code constructing the
+          component displayed on this page:
+        </p>
+
+        <pre>
+let _ =
+  OCamlMVC.attach
+    ~parent_id:"editor"
+    (module VCR.Of
+        (Editor)
+        (struct
+          let relevant = function
+            | Editor.Movement _ ->
+              false
+            | _ ->
+              true
+         end))
+</pre>
+
+        <p>
+          The functor <code>VCR.Of</code> takes two parameters: (1)
+          the underlying component (in this case <code>Editor</code>);
+          and (2) a function that determines which user actions are to
+          be deemed relevant for the purposes of adding to the undo
+          stack. In this case, movement actions are irrelevant, while
+          all other actions are relevant.
+        </p>
+
+        <p>
+          Adding a generic Undo/redo feature is to any component is as
+          straightforward as applying an OCaml functor due to the use
+          of persistent data structures to represent the state of the
+          text editor. This was inspired
+          by <a href="http://swannodette.github.io/2013/12/31/time-travel/">David
+          Nolen's blog post</a> on how the use of persistent data
+          structures in React/Om enabled a straightforward
+          implementation of time travel.
+        </p>
+
+        <p>
+          An additional feature
+          of <a href="https://github.com/bobatkey/ocamlmvc/">OCamlMVC</a>
+          is that it makes the actions that can be performed by the
+          user interacting with the UI completely explicit. Being
+          explicit about the individual actions that can be performed
+          means that generating a UI representation of the undo/redo
+          stack is also straightforward.
+        </p>
+
+        <p>
+          The text editor component itself is relatively featureless
+          at the moment. Only the following features are implemented:
+        </p>
+
+        <ul>
+          <li>Movement using the cursor keys</li>
+          <li>Insert of text by typing</li>
+          <li>Deletion of text using ‘backspace’ and ‘delete’</li>
+        </ul>
+
+        <p>
+          Nevertheless, once more features are added to the underlying
+          text editor component, the generic Undo/redo functor will
+          automatically pick them up without having to do anything
+          special.
+        </p>
+      </div>
+    </div>
+    <script src="editor.js"></script>
+  </body>
+</html>

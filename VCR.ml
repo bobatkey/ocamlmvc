@@ -3,7 +3,12 @@ module type Component = sig
   val string_of_action : action -> string
 end
 
-module Of (Inner : Component) : OCamlMVC.Component = struct
+module Of
+  (Inner  : Component)
+  (Filter : sig val relevant : Inner.action -> bool end)
+  : OCamlMVC.Component
+  =
+struct
   open OCamlMVC
 
   type state =
@@ -17,12 +22,23 @@ module Of (Inner : Component) : OCamlMVC.Component = struct
     | Undo
     | Redo
 
+  let render_truncated_list ~f ~limit list =
+    let render_item x =
+      Html.(li [ span ~classes:["small"] [ text x ] ])
+    in
+    let rec loop i = function
+      | []                   -> []
+      | x::xs when i = limit -> [ render_item "..." ]
+      | x::xs                -> render_item (f x)::loop (i+1) xs
+    in
+    loop 0 list
+
   let render {history;now;future} =
     let have_history = history <> [] in
     let have_future  = future <> [] in
     let open Html in
     div [ div ~classes:["row"]
-            [ div ~classes:["small-centered";"small-8";"columns"]
+            [ div ~classes:["small-centered";"small-6";"columns"]
                 [ ul ~classes:["button-group";"radius"]
                     [ li [ button ~enabled:have_history ~onclick:Undo "« Undo" ]
                     ; li [ button ~enabled:have_future ~onclick:Redo "Redo »" ]
@@ -34,23 +50,30 @@ module Of (Inner : Component) : OCamlMVC.Component = struct
             [ div ~classes:["small-6";"columns"]
                 [ h6 [ text "History" ]
                 ; ul ~classes:["no-bullet"]
-                    (List.map (fun (_, act) -> li [ span ~classes:["small"] [ text (Inner.string_of_action act) ] ]) history)
+                    (history |> render_truncated_list
+                        ~f:(fun (_,act) -> Inner.string_of_action act)
+                        ~limit:10)
                 ]
             ; div ~classes:["small-6";"columns"]
                 [ h6 [ text "Future" ]
                 ; ul ~classes:["no-bullet"]
-                    (List.map (fun (act, _) -> li [ span ~classes:["small"] [ text (Inner.string_of_action act) ] ]) future)
+                    (future |> render_truncated_list
+                        ~f:(fun (act,_) -> Inner.string_of_action act)
+                        ~limit:10)
                 ]
             ]
         ]
 
   let update = function
-    | Inner action ->
+    | Inner action when Filter.relevant action ->
       (fun {history;now} ->
         { history = (now,action)::history
         ; now     = Inner.update action now
         ; future  = []
         })
+    | Inner action ->
+      (fun ({now} as t) ->
+        {t with now = Inner.update action now})
     | Undo ->
       (function
         | {history=[]} as state -> state

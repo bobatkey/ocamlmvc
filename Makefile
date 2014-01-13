@@ -1,10 +1,19 @@
-SRC := OCamlMVC.mli OCamlMVC.ml VCR.mli VCR.ml TodoList.mli TodoList.ml TodoListComponent.mli TodoListComponent.ml Main.ml
-CMO := $(patsubst %.ml,%.cmo,$(filter-out %.mli,$(SRC)))
+TODO_SRC := OCamlMVC.mli OCamlMVC.ml VCR.mli VCR.ml TodoList.mli TodoList.ml TodoListComponent.mli TodoListComponent.ml Main.ml
+TODO_CMO := $(patsubst %.ml,%.cmo,$(filter-out %.mli,$(TODO_SRC)))
 
-all: todo.js
+EDITOR_SRC := OCamlMVC.mli OCamlMVC.ml VCR.mli VCR.ml TodoList.mli TodoList.ml TodoListComponent.mli TodoListComponent.ml Editor.ml EditorMain.ml
+EDITOR_CMO := $(patsubst %.ml,%.cmo,$(filter-out %.mli,$(EDITOR_SRC)))
+
+SRC := $(TODO_SRC) $(EDITOR_SRC)
+
+all: todo.js editor.js
 
 ######################################################################
-todo.byte: $(CMO)
+todo.byte: $(TODO_CMO)
+	@echo Linking $@
+	@ocamlfind ocamlc -package js_of_ocaml -linkpkg -o $@ $^
+
+editor.byte: $(EDITOR_CMO)
 	@echo Linking $@
 	@ocamlfind ocamlc -package js_of_ocaml -linkpkg -o $@ $^
 
