@@ -273,11 +273,15 @@ let render state =
     else if char_code <> 0 then Some (Insert (Char.chr char_code))
     else None
   in
+  let line s =
+    if s = "" then line [ text " " ]
+    else line [ text s ]
+  in
   div ~onkeypress ~tabindex:1 ~classes:["editor"]
   @@ List.concat
-    [ List.rev_map (fun s -> line [ text s ]) state.lines_before
+    [ List.rev_map line state.lines_before
     ; [ render_current_line state.current_line ]
-    ; List.map (fun s -> line [ text s ]) state.lines_after
+    ; List.map line state.lines_after
     ]
 
 let update = function

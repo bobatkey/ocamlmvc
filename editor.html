@@ -37,10 +37,21 @@ div.editor:focus span.cursor {
   animation-duration: 0.5s;
   animation-name:     blink;
   animation-iteration-count: infinite;
-  animation-direction: alternate
+  animation-direction: alternate;
+  -webkit-animation-duration: 0.5s;
+  -webkit-animation-name:     blink;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-direction: alternate
 }
 
 @keyframes blink {
+  from { color: #fff; background-color: #555 }
+  60%  { color: #fff; background-color: #555 }
+  61%  { color: #000; background-color: none }
+  to   { color: #000; background-color: none }
+}
+
+@-webkit-keyframes blink {
   from { color: #fff; background-color: #555 }
   60%  { color: #fff; background-color: #555 }
   61%  { color: #000; background-color: none }
@@ -61,11 +72,13 @@ span.small {
       <hr>
     </div>
 
+    <div id="editor">
+    </div>
+
     <div class="row">
-      <div class="large-7 columns">
-        <div id="editor"></div>
-      </div>
-      <div class="large-5 columns">
+      <hr>
+
+      <div class="large-12 columns">
         <h4>About</h4>
 
         <p>

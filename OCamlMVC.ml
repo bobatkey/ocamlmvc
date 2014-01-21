@@ -162,6 +162,11 @@ module Html = struct
                        (fun node ev -> 
                          let key_code  = ev##keyCode in
                          let char_code = Js.Optdef.get (ev##charCode) (fun () -> 0) in
+                         f key_code char_code))
+              ; Event (Dom_html.Event.keydown,
+                       (fun node ev ->
+                         let key_code  = ev##keyCode in
+                         let char_code = Js.Optdef.get (ev##charCode) (fun () -> 0) in
                          f key_code char_code)) ])
           ],
         children)
