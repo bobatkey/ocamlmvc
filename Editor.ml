@@ -211,7 +211,7 @@ let delete ({current_line} as t) =
       - making any edit *)
 (* 3. Syntax highlight/semantic analysis
       - state-based analysis
-      - assignment of spans to pieces of text in the buffer (or just characters?)
+      - assignment of spans to pieces of text in the buffer (or just characters? emacs does characters)
       - *)
 
 (**********************************************************************)
@@ -220,8 +220,10 @@ let delete ({current_line} as t) =
 
    - each line becomes a <pre> element
    - the character currently under the cursor is wrapped in a <span class="cursor">
+   - line numbers?
 
-  unicode? combining characters?
+   unicode? combining characters? graphemes? what should cursor
+   movement/deletion do?
 *)
 
 type action =

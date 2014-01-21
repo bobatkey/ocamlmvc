@@ -21,6 +21,7 @@ editor.byte: $(EDITOR_CMO)
 clean:
 	rm -f *.cmo *.cmi
 	rm -f todo.byte todo.js
+	rm -f editor.byte editor.js
 	rm -f *~
 
 ######################################################################

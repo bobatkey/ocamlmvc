@@ -14,14 +14,14 @@ The library (such as it is) is based around a single `Component`
 module signature:
 
 ````ocaml
-    module type Component = sig
-        type state
-        type action
+module type Component = sig
+    type state
+    type action
 
-        val render  : state -> action html
-        val update  : action -> state -> state
-        val initial : state
-    end
+    val render  : state -> action html
+    val update  : action -> state -> state
+    val initial : state
+end
 ````
 
 The type `state` represents the set of all possible states that the
