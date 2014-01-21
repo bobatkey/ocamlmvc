@@ -3,7 +3,12 @@ module type Component = sig
   val string_of_action : action -> string
 end
 
+module type Filter = sig
+  type t
+  val relevant : t -> bool
+end
+
 module Of
   (Inner  : Component)
-  (Filter : sig val relevant : Inner.action -> bool end)
+  (Filter : Filter with type t = Inner.action)
   : OCamlMVC.Component

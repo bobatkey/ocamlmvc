@@ -3,9 +3,14 @@ module type Component = sig
   val string_of_action : action -> string
 end
 
+module type Filter = sig
+  type t
+  val relevant : t -> bool
+end
+
 module Of
   (Inner  : Component)
-  (Filter : sig val relevant : Inner.action -> bool end)
+  (Filter : Filter with type t = Inner.action)
   : OCamlMVC.Component
   =
 struct
@@ -37,15 +42,18 @@ struct
     let have_history = history <> [] in
     let have_future  = future <> [] in
     let open Html in
-    div [ div ~classes:["row"]
-            [ div ~classes:["small-centered";"small-6";"columns"]
+    div ~classes:["row"]
+      [ div ~classes:["columns";"large-7"]
+          [ map (fun action -> Inner action) (Inner.render now) ]
+      ; div ~classes:["columns";"large-5"]
+        [ div ~classes:["row"]
+            [ div ~classes:["small-centered";"small-12";"columns"]
                 [ ul ~classes:["button-group";"radius"]
                     [ li [ button ~enabled:have_history ~onclick:Undo "« Undo" ]
                     ; li [ button ~enabled:have_future ~onclick:Redo "Redo »" ]
                     ]
                 ]
             ]
-        ; map (fun action -> Inner action) (Inner.render now)
         ; div ~classes:["row"]
             [ div ~classes:["small-6";"columns"]
                 [ h6 [ text "History" ]
@@ -63,6 +71,7 @@ struct
                 ]
             ]
         ]
+      ]
 
   let update = function
     | Inner action when Filter.relevant action ->

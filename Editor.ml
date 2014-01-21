@@ -291,8 +291,28 @@ let update = function
   | Delete          -> delete
 
 let initial =
-  of_string ""
+  of_string "## Basic design notes
 
-let relevant = function
-  | Movement _ -> false
-  | _          -> true
+The library (such as it is) is based around a single `Component`
+module signature:
+
+````ocaml
+module type Component = sig
+    type state
+    type action
+
+    val render  : state -> action html
+    val update  : action -> state -> state
+    val initial : state
+end
+````
+
+The type `state` represents the set of all possible states that the
+component can be in, and the type `action` represents all the possible
+actions that can be peformed by the user. For each possible state, the
+`render` function generates a reactive HTML document that can be
+manipulated by the use to generate actions. The `update` function is
+then used to translate an action into a state transformation
+function. The `initial` value is used as the initial state of the
+component.
+"

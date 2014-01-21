@@ -92,3 +92,10 @@ let update = let open TodoList in function
 
 let initial =
   TodoList.empty
+
+module ActionFilter = struct
+  type t = action
+  let relevant = function
+    | UpdatePending _ -> false
+    | _               -> true
+end

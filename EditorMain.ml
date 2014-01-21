@@ -3,6 +3,7 @@ let _ =
     (module VCR.Of
         (Editor)
         (struct
+          type t = Editor.action
           let relevant = function
             | Editor.Movement _ -> false
             | _                 -> true

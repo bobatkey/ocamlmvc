@@ -1,3 +1,5 @@
 let _ =
   OCamlMVC.attach ~parent_id:"demo"
-    (module TodoListComponent)
+    (module VCR.Of
+        (TodoListComponent)
+        (TodoListComponent.ActionFilter))
