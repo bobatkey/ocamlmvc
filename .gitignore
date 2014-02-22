@@ -1,0 +1,7 @@
+*.cmi
+*.cmo
+todo.js
+editor.js
+*~
+*.byte
+/.ocamldeps
