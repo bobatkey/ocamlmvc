@@ -148,13 +148,22 @@ let insert c ({current_line} as t) =
     cursor_col = None
   }
 
+let insert_before c ({current_line} as t) =
+  let {characters_before;characters_after} = current_line in
+  {t with current_line =
+      { characters_before
+      ; characters_after = String.make 1 c ^ characters_after
+      };
+    cursor_col = None
+  }
+
 let newline ({lines_before;current_line} as t) =
   {t with
     lines_before = current_line.characters_before :: lines_before;
     current_line = { current_line with characters_before = "" };
     cursor_col   = None}
 
-let backspace ({current_line} as t) =
+let delete_backwards ({current_line} as t) =
   let {characters_before;characters_after} = current_line in
   if String.length characters_before = 0 then
     let {lines_before;lines_after} = t in
@@ -175,7 +184,7 @@ let backspace ({current_line} as t) =
       cursor_col = None
     }
 
-let delete ({current_line} as t) =
+let delete_forwards ({current_line} as t) =
   let {characters_before;characters_after} = current_line in
   if String.length characters_after = 0 then
     let {lines_before;lines_after} = t in
@@ -192,7 +201,7 @@ let delete ({current_line} as t) =
     {t with
       current_line =
         {current_line with
-          characters_after  = String.sub characters_after 1 (String.length characters_after - 1)
+          characters_after = String.sub characters_after 1 (String.length characters_after - 1)
         };
       cursor_col = None
     }
@@ -292,9 +301,9 @@ let update = function
   | Movement `Left  -> move_left
   | Movement `Right -> move_right
   | Insert c        -> insert c
-  | Backspace       -> backspace
+  | Backspace       -> delete_backwards
   | Newline         -> newline
-  | Delete          -> delete
+  | Delete          -> delete_forwards
 
 let initial =
   of_string "## Basic design notes
