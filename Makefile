@@ -41,7 +41,7 @@ clean:
 
 %.js: %.byte
 	@echo Compiling $< to $@
-	@js_of_ocaml -opt 2 $<
+	@js_of_ocaml --opt 2 $<
 
 ######################################################################
 .ocamldeps: $(SRC)

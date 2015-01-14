@@ -28,8 +28,11 @@ struct
     | Redo
 
   let render_truncated_list ~f ~limit list =
+    let open Html in
     let render_item x =
-      Html.(li [ span ~classes:["small"] [ text x ] ])
+      li begin
+        span ~attrs:[A.class_ "small"] (text x)
+      end
     in
     let rec loop i = function
       | []                   -> []
@@ -39,9 +42,18 @@ struct
     loop 0 list
 
   let render {history;now;future} =
+    let open Html in
     let have_history = history <> [] in
     let have_future  = future <> [] in
-    let open Html in
+    let div ~classes children =
+      div ~attrs:[A.class_ (String.concat " " classes)] (of_list children)
+    in
+    let ul ~classes children =
+      ul ~attrs:[A.class_ (String.concat " " classes)] (of_list children)
+    in
+    let button ~enabled ~onclick label =
+      button ~attrs:[A.enabled enabled; E.onclick onclick] (text label)
+    in
     div ~classes:["row"]
       [ div ~classes:["columns";"large-7"]
           [ map (fun action -> Inner action) (Inner.render now) ]
@@ -49,25 +61,25 @@ struct
         [ div ~classes:["row"]
             [ div ~classes:["small-centered";"small-12";"columns"]
                 [ ul ~classes:["button-group";"radius"]
-                    [ li [ button ~enabled:have_history ~onclick:Undo "« Undo" ]
-                    ; li [ button ~enabled:have_future ~onclick:Redo "Redo »" ]
+                    [ li (button ~enabled:have_history ~onclick:Undo "« Undo")
+                    ; li (button ~enabled:have_future ~onclick:Redo "Redo »")
                     ]
                 ]
             ]
         ; div ~classes:["row"]
             [ div ~classes:["small-6";"columns"]
-                [ h6 [ text "History" ]
+                [ h6 (text "History")
                 ; ul ~classes:["no-bullet"]
                     (history |> render_truncated_list
-                        ~f:(fun (_,act) -> Inner.string_of_action act)
-                        ~limit:10)
+                       ~f:(fun (_,act) -> Inner.string_of_action act)
+                       ~limit:10)
                 ]
             ; div ~classes:["small-6";"columns"]
-                [ h6 [ text "Future" ]
+                [ h6 (text "Future")
                 ; ul ~classes:["no-bullet"]
                     (future |> render_truncated_list
-                        ~f:(fun (act,_) -> Inner.string_of_action act)
-                        ~limit:10)
+                       ~f:(fun (act,_) -> Inner.string_of_action act)
+                       ~limit:10)
                 ]
             ]
         ]

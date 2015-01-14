@@ -258,18 +258,21 @@ let line ?(current=false) children =
                 ; if current then ["current-line"] else []
                 ]
   in
-  Html.(pre ~classes children)
+  Html.(pre ~attrs:[ A.class_ (String.concat " " classes) ] children)
 
 let render_current_line {characters_before;characters_after} =
   let open Html in
-  line ~current:true @@
-    text characters_before::
+  line ~current:true begin
+    text characters_before
+    ^^
     if String.length characters_after = 0 then
-      [ span ~classes:["cursor"] [ text " " ] ]
-    else
-      [ span ~classes:["cursor"] [ text (String.sub characters_after 0 1) ]
-      ; text (String.sub characters_after 1 (String.length characters_after - 1))
-      ]
+      span ~attrs:[A.class_ "cursor"] (text " ")
+    else begin
+      span ~attrs:[A.class_ "cursor"] (text (String.sub characters_after 0 1))
+      ^^
+      text (String.sub characters_after 1 (String.length characters_after - 1))
+    end
+  end
 
 let render state =
   let open Html in
@@ -285,15 +288,21 @@ let render state =
     else None
   in
   let line s =
-    if s = "" then line [ text " " ]
-    else line [ text s ]
+    if s = "" then line (text " ")
+    else line (text s)
   in
-  div ~onkeypress ~tabindex:1 ~classes:["editor"]
-  @@ List.concat
-    [ List.rev_map line state.lines_before
-    ; [ render_current_line state.current_line ]
-    ; List.map line state.lines_after
-    ]
+  div
+    ~attrs:[ A.tabindex 1
+           ; A.class_ "editor"
+           ; E.onkeypress onkeypress
+           ]
+    begin
+      of_list (List.rev_map line state.lines_before)
+      ^^
+      render_current_line state.current_line
+      ^^
+      of_list (List.map line state.lines_after)
+    end
 
 let update = function
   | Movement `Up    -> move_up

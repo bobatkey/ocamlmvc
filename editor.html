@@ -26,11 +26,27 @@ pre.current-line {
   background-color: #eee
 }
 
+div.line {
+  margin-bottom: 1em
+}
+
 span.cursor {
   border: 1px solid #99a;
   margin: -1px -1px -1px -1px
 }
 
+div.editor:focus span.cursor {
+  border-left: 1px solid #000;
+  border-right: none;
+  border-top: none;
+  border-bottom: none;
+  margin-left: -1px;
+  margin-right: 0px;
+  margin-top: 0px;
+  margin-bottom: 0px
+}
+
+/*
 div.editor:focus span.cursor {
   border: none;
   margin: 0 0 0 0;
@@ -57,7 +73,7 @@ div.editor:focus span.cursor {
   61%  { color: #000; background-color: none }
   to   { color: #000; background-color: none }
 }
-
+*/
 span.small {
   font-size: 70%
 }

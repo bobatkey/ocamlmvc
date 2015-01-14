@@ -24,65 +24,105 @@ let render_item idx {TodoList.label=l;status} =
   let id = sprintf "checkbox%d" idx in
   let open Html in
   let open TodoList in
+  let checkbox ~id ~onchange ~state =
+    let attrs =
+      [ A.type_ "checkbox"; A.id id; E.onchange (fun ~value -> onchange) ]
+    in
+    let attrs =
+      if state then A.checked true::attrs else attrs
+    in
+    input ~attrs Html.empty
+  in
   match status with
     | DONE ->
-      [ checkbox ~id ~onchange:(Set (idx, TODO)) ~state:true
-      ; label ~for_id:id [ span ~classes:["done"] [ text l ] ]
-      ]
+       checkbox ~id ~onchange:(Set (idx, TODO)) ~state:true
+       ^^
+       label ~attrs:[A.for_control id] (span ~attrs:[A.class_ "done"] (text l))
     | TODO ->
-      [ checkbox ~id ~onchange:(Set (idx, DONE)) ~state:false
-      ; label ~for_id:id [ text l ]
-      ]
+       checkbox ~id ~onchange:(Set (idx, DONE)) ~state:false
+       ^^
+       label ~attrs:[A.for_control id] (text l)
 
 let render_items = let open Html in function
   | [] ->
-    em [ text "Items will appear here" ]
+    em (text "Items will appear here")
   | items ->
-    ul ~classes:["no-bullet"]
-      (List.mapi (fun i -> li <.> render_item i) items)
+    ul ~attrs:[A.class_ "no-bullet"]
+    @@ of_list (List.mapi (fun i -> li <.> render_item i) items)
 
 let render {TodoList.items;pending_item} =
   let open Html in
-  div ~classes:["panel";"radius"]
-    [ div ~classes:["row";"collapse"]
-        [ div ~classes:["small-8";"columns"]
-            [ text_input
-                ~classes:["radius"]
-                ~onenter:Add
-                ~oninput:(fun s -> UpdatePending s)
-                ~placeholder:"Enter new item here"
-                pending_item
-            ]
-        ; div ~classes:["small-2";"columns"]
-            [ button
-                ~classes:["postfix"]
-                ~enabled:(pending_item <> "")
-                ~onclick:Add
-                "Add"
-            ]
-        ; div ~classes:["small-2";"columns"]
-            [ button
-                ~classes:["radius";"postfix";"alert"]
-                ~enabled:(List.exists (fun item -> item.TodoList.status = TodoList.DONE) items)
-                ~onclick:Clear
-                "Clear"
-            ]
-        ]
-    ; render_items items
-    ; hr
-    ; div ~classes:["row"]
-        [ div ~classes:["small-12";"columns"]
-            [ let num_items = List.length items in
-              let num_done_items =
-                List.length (List.filter (fun i -> i.TodoList.status = TodoList.DONE) items)
-              in
-              text (sprintf "%d item%s with %d completed"
-                      num_items
-                      (if num_items = 1 then "" else "s")
-                      num_done_items)
-            ]
-        ]
-    ]
+  let div ~classes html =
+    div ~attrs:[A.class_ (String.concat " " classes)] html
+  in
+  let text_input ~classes ~onenter ~oninput ~placeholder value =
+    input
+      ~attrs:[ A.class_ (String.concat " " classes)
+             ; A.type_ "text"
+             ; A.value value
+             ; A.placeholder placeholder
+             ; E.oninput oninput
+             ; E.onkeypress (fun key_code char_code ->
+                 if key_code = Keycode.return
+                 then Some onenter else None)
+             ]
+      Html.empty
+  and button ~classes ~enabled ~onclick label =
+    let classes =
+      ["button"]
+      @ (if enabled then [] else ["disabled"])
+      @ classes
+    in
+    button ~attrs:[ A.class_ (String.concat " " classes)
+                  ; E.onclick onclick
+                  ]
+      (text label)
+  in
+  div ~classes:["panel";"radius"] begin
+    div ~classes:["row";"collapse"] begin
+      div ~classes:["small-8";"columns"] begin
+        text_input
+          ~classes:["radius"]
+          ~onenter:Add
+          ~oninput:(fun ~value -> UpdatePending value)
+          ~placeholder:"Enter new item here"
+          pending_item
+      end
+      ^^
+      div ~classes:["small-2";"columns"] begin
+        button
+          ~classes:["postfix"]
+          ~enabled:(pending_item <> "")
+          ~onclick:Add
+          "Add"
+      end
+      ^^
+      div ~classes:["small-2";"columns"] begin
+        button
+          ~classes:["radius";"postfix";"alert"]
+          ~enabled:(List.exists (fun item -> item.TodoList.status = TodoList.DONE) items)
+          ~onclick:Clear
+            "Clear"
+      end
+      ^^
+      render_items items
+      ^^
+      hr ()
+      ^^
+      div ~classes:["row"] begin
+        div ~classes:["small-12";"columns"] begin
+          let num_items = List.length items in
+          let num_done_items =
+            List.length (List.filter (fun i -> i.TodoList.status = TodoList.DONE) items)
+          in
+          text (sprintf "%d item%s with %d completed"
+                  num_items
+                  (if num_items = 1 then "" else "s")
+                  num_done_items)
+        end
+      end
+    end
+  end
 
 let update = let open TodoList in function
   | Add                -> add_pending_item
