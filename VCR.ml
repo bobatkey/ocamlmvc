@@ -30,14 +30,12 @@ struct
   let render_truncated_list ~f ~limit list =
     let open Html in
     let render_item x =
-      li begin
-        span ~attrs:[A.class_ "small"] (text x)
-      end
+      li (span ~attrs:[A.class_ "small"] (text x))
     in
     let rec loop i = function
-      | []                   -> []
-      | x::xs when i = limit -> [ render_item "..." ]
-      | x::xs                -> render_item (f x)::loop (i+1) xs
+      | []                   -> empty
+      | x::xs when i = limit -> render_item "..."
+      | x::xs                -> render_item (f x) ^^ loop (i+1) xs
     in
     loop 0 list
 
@@ -46,44 +44,55 @@ struct
     let have_history = history <> [] in
     let have_future  = future <> [] in
     let div ~classes children =
-      div ~attrs:[A.class_ (String.concat " " classes)] (of_list children)
+      div ~attrs:[A.class_ (String.concat " " classes)] children
     in
     let ul ~classes children =
-      ul ~attrs:[A.class_ (String.concat " " classes)] (of_list children)
+      ul ~attrs:[A.class_ (String.concat " " classes)] children
     in
     let button ~enabled ~onclick label =
       button ~attrs:[A.enabled enabled; E.onclick onclick] (text label)
     in
-    div ~classes:["row"]
-      [ div ~classes:["columns";"large-7"]
-          [ map (fun action -> Inner action) (Inner.render now) ]
-      ; div ~classes:["columns";"large-5"]
-        [ div ~classes:["row"]
-            [ div ~classes:["small-centered";"small-12";"columns"]
-                [ ul ~classes:["button-group";"radius"]
-                    [ li (button ~enabled:have_history ~onclick:Undo "« Undo")
-                    ; li (button ~enabled:have_future ~onclick:Redo "Redo »")
-                    ]
-                ]
-            ]
-        ; div ~classes:["row"]
-            [ div ~classes:["small-6";"columns"]
-                [ h6 (text "History")
-                ; ul ~classes:["no-bullet"]
-                    (history |> render_truncated_list
-                       ~f:(fun (_,act) -> Inner.string_of_action act)
-                       ~limit:10)
-                ]
-            ; div ~classes:["small-6";"columns"]
-                [ h6 (text "Future")
-                ; ul ~classes:["no-bullet"]
-                    (future |> render_truncated_list
-                       ~f:(fun (act,_) -> Inner.string_of_action act)
-                       ~limit:10)
-                ]
-            ]
-        ]
-      ]
+    div ~classes:["row"] begin
+      div ~classes:["columns";"large-7"] begin
+        map (fun action -> Inner action) (Inner.render now)
+      end
+      ^^
+      div ~classes:["columns";"large-5"] begin
+        div ~classes:["row"] begin
+          div ~classes:["small-centered";"small-12";"columns"] begin
+            ul ~classes:["button-group";"radius"] begin
+              li (button ~enabled:have_history ~onclick:Undo "« Undo")
+              ^^
+              li (button ~enabled:have_future ~onclick:Redo "Redo »")
+            end
+          end
+        end
+        ^^
+        div ~classes:["row"] begin
+          div ~classes:["small-6";"columns"] begin
+            h6 (text "History")
+            ^^
+            ul ~classes:["no-bullet"] begin
+              history
+              |> render_truncated_list
+                ~f:(fun (_,act) -> Inner.string_of_action act)
+                ~limit:10
+            end
+          end
+          ^^
+          div ~classes:["small-6";"columns"] begin
+            h6 (text "Future")
+            ^^
+            ul ~classes:["no-bullet"] begin
+              future
+              |> render_truncated_list
+                ~f:(fun (act,_) -> Inner.string_of_action act)
+                ~limit:10
+            end
+          end
+        end
+      end
+    end
 
   let update = function
     | Inner action when Filter.relevant action ->

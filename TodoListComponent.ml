@@ -47,8 +47,9 @@ let render_items = let open Html in function
   | [] ->
     em (text "Items will appear here")
   | items ->
-    ul ~attrs:[A.class_ "no-bullet"]
-    @@ of_list (List.mapi (fun i -> li <.> render_item i) items)
+    ul ~attrs:[A.class_ "no-bullet"] begin
+      of_list (List.mapi (fun i -> li <.> render_item i) items)
+    end
 
 let render {TodoList.items;pending_item} =
   let open Html in
@@ -66,7 +67,7 @@ let render {TodoList.items;pending_item} =
                  if key_code = Keycode.return
                  then Some onenter else None)
              ]
-      Html.empty
+      empty
   and button ~classes ~enabled ~onclick label =
     let classes =
       ["button"]
